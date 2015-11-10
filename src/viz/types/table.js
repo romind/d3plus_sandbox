@@ -1,5 +1,6 @@
 var fetchValue = require("../../core/fetch/value.coffee");
 var uniques    = require("../../util/uniques.coffee");
+var buckets = require("../../util/buckets.coffee");
 var copy       = require("../../util/copy.coffee");
 var rand_col   = require("../../color/random.coffee");
 
@@ -87,7 +88,7 @@ var table = function(vars) {
       if(domain_extent[0] == domain_extent[1]){
         domain_extent = [domain_extent[0]-1, domain_extent[1]]
       }
-      colors[col] = d3.scale.linear().domain(domain_extent).range([vars.color.missing,rand_col(col)])
+      colors[col] = d3.scale.linear().domain(domain_extent).range(["#fff", "#6b90b5"])
     }
     else if(vars.data.keys[col] == "boolean"){
       colors[col] = function(bool){
@@ -95,6 +96,27 @@ var table = function(vars) {
       }
     }
   })
+  
+var color_range = [
+    "#e0e0e0",
+    "#fff59d", "#fff176", "#ffee58", "#ffeb3b",
+    "#ffcc80", "#ffb74d", "#ffa726", "#ff9800",
+    "#ef9a9a", "#e57373", "#ef5350", "#f44336"
+  ]
+
+
+
+  var data_range = d3.extent(vars.data.viz, function(d){ return d["id"]; })
+      data_range =    buckets(data_range,color_range.length)
+
+
+  vars.color.valueScale = d3.scale.sqrt()
+      .domain(data_range)
+      .range(color_range)
+      .interpolate(d3.interpolateRgb)
+
+  if ( vars.dev.value ) print.timeEnd("calculating color scale")
+
 
   vars.data.viz.forEach(function(d, row_i){
     // offset for column headers
@@ -115,7 +137,7 @@ var table = function(vars) {
 
       if(col == "label"){
         d_clone.d3plus.shape = "square";
-        d_clone.d3plus.color = "#fff";
+        d_clone.d3plus.color = vars.color.valueScale(d_clone["id"]);
         // special case for top left corner
         ret.push(d_clone)
       }
