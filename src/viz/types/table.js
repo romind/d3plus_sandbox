@@ -70,7 +70,7 @@ var table = function(vars) {
       "id": "d3p_header_"+col.toString().replace(/ /g,"_"),
       "shape": "square",
       "color": "#fff",
-      "text": col
+      "text": vars.format.value(col)
     }}
     if(col == vars.id.value){
       header.d3plus.color = "#fff";
@@ -106,7 +106,7 @@ var color_range = [
 
 
 
-  var data_range = d3.extent(vars.data.viz, function(d){ return d["id"]; })
+  var data_range = d3.extent(vars.data.viz, function(d){ return d["value"]; })
       data_range =    buckets(data_range,color_range.length)
 
 
@@ -114,9 +114,6 @@ var color_range = [
       .domain(data_range)
       .range(color_range)
       .interpolate(d3.interpolateRgb)
-
-  if ( vars.dev.value ) print.timeEnd("calculating color scale")
-
 
   vars.data.viz.forEach(function(d, row_i){
     // offset for column headers
@@ -129,15 +126,17 @@ var color_range = [
       var d_clone = copy(d);
 
       // set unique ID otherwise it'd be the same in each column
-      d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value].toString().replace(/ /g,"_")+"_"+col;
-      d_clone.d3plus.x = (item_width * col_i) + item_width/2;
+	  // d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value].toString().replace(/ /g,"_")+"_"+col;
+    	 d_clone.d3plus.id = "d3p_"+(vars.id.value=='identifier' ? (Array.isArray(d_clone['id']) ? d_clone['id'][0]['id'] : d_clone['id']) : d_clone[vars.id.value]).toString().replace(/ /g,"_")+"_"+col;
+
+	  d_clone.d3plus.x = (item_width * col_i) + item_width/2;
       d_clone.d3plus.y = (item_height * row_i) + item_height/2;
       d_clone.d3plus.width = item_width;
       d_clone.d3plus.height = item_height;
 
       if(col == "label"){
         d_clone.d3plus.shape = "square";
-        d_clone.d3plus.color = vars.color.valueScale(d_clone["id"]);
+        d_clone.d3plus.color = vars.id.value=='cluster' ? vars.color.valueScale(d_clone["value"]) : "#fff";
         // special case for top left corner
         ret.push(d_clone)
       }
