@@ -147,11 +147,10 @@ var color_range = [
 
       // be sure that this column is actually in this data item
       if(col != "label"){ // || d3.keys(d).indexOf(col) >= 0 && col in d){
-        if(colors[col]){
-          d_clone.d3plus.color = colors[col](d_clone[col]);
-        } else {
-			d_clone.d3plus.color = color_range[0];
-		}
+        var zero = !(col in d);
+		if(colors[col]){
+          d_clone.d3plus.color = zero ? "#fff" : colors[col](d_clone[col]);
+        } 
         d_clone.d3plus.text = vars.format.value(col in d ? d_clone[col]: 0);
         if(vars.data.keys[col] == "boolean"){
           d_clone.d3plus.label = false;
