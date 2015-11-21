@@ -3,6 +3,7 @@ var uniques    = require("../../util/uniques.coffee");
 var buckets = require("../../util/buckets.coffee");
 var copy       = require("../../util/copy.coffee");
 var rand_col   = require("../../color/random.coffee");
+var drawLegend    = require("../../viz/helpers/ui/legend.js");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Table
@@ -20,6 +21,7 @@ var table = function(vars) {
   }
 
   // width/height are a function of number of IDs and columns
+  vars.height.viz-=50; //for the new heatmap...
   var item_height = vars.height.viz / (ids.length+1); // add 1 for header offset
   var item_width = vars.width.viz / cols.length;
 
@@ -114,6 +116,8 @@ var color_range = [
       .domain(data_range)
       .range(color_range)
       .interpolate(d3.interpolateRgb)
+	  
+  drawLegend(vars);
 
   vars.data.viz.forEach(function(d, row_i){
     // offset for column headers
@@ -142,11 +146,13 @@ var color_range = [
       }
 
       // be sure that this column is actually in this data item
-      if(d3.keys(d).indexOf(col) >= 0 && col in d){
+      if(col != "label"){ // || d3.keys(d).indexOf(col) >= 0 && col in d){
         if(colors[col]){
           d_clone.d3plus.color = colors[col](d_clone[col]);
-        }
-        d_clone.d3plus.text = d_clone[col];
+        } else {
+			d_clone.d3plus.color = color_range[0];
+		}
+        d_clone.d3plus.text = vars.format.value(col in d ? d_clone[col]: 0);
         if(vars.data.keys[col] == "boolean"){
           d_clone.d3plus.label = false;
         }

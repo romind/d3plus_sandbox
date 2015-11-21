@@ -44,7 +44,7 @@ resize = (vars) ->
     "font-size": sizeMax + "px"
     parent: vars.container.value
   maxWidth  = d3.max sizes, (d) -> d.width
-  areaMod   = 1.165 + (width / height * 0.11)
+  areaMod   = 1.665 + (width / height * 0.22)
   textArea  = d3.sum(sizes, (d) ->
     h = vars.container.dy or sizeMax * 1.2
     d.width * h
